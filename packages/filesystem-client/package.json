@@ -1,0 +1,22 @@
+{
+  "name": "filesystem-client",
+  "version": "1.0.0",
+  "description": "A client to send serverinfo requests to a Filesystem MCP Server.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "start": "node --no-warnings=ExperimentalWarning src/index.ts",
+    "build": "tsc"
+  },
+  "keywords": [
+    "mcp",
+    "filesystem",
+    "client"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@modelcontextprotocol/server-filesystem": "^2025.3.28"
+  }
+}
