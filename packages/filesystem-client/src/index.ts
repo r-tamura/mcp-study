@@ -27,7 +27,7 @@ type JsonRpcResponse = {
 	};
 };
 
-// MCP Client クラス
+
 class Client {
 	private serverProcess: ChildProcessWithoutNullStreams | null = null;
 	private nextRequestId = 1;
@@ -37,6 +37,13 @@ class Client {
 
 	constructor() {
 		// サーバープロセスは外部から渡されるのでここでは初期化しない
+	}
+
+	// サーバーとの接続状態を確認し、未接続の場合はエラーを投げる
+	private ensureConnected(): void {
+		if (!this.isConnected) {
+			throw new Error("Not connected to a server");
+		}
 	}
 
 	// サーバーとの接続を確立し、初期化フェーズを実行する
@@ -215,25 +222,41 @@ class Client {
 
 	// ツール一覧を取得
 	public async listTools(): Promise<any> {
-		if (!this.isConnected) {
-			return Promise.reject(new Error("Not connected to a server"));
-		}
+		this.ensureConnected();
+		const toolsResult = await this.request("tools/list", {});
 
-		try {
-			const toolsResult = await this.request("tools/list", {});
+		console.log("\n======== MCP Tools List ========");
+		console.log(JSON.stringify(toolsResult, null, 2));
+		console.log("==============================\n");
 
-			console.log("\n======== MCP Tools List ========");
-			console.log(JSON.stringify(toolsResult, null, 2));
-			console.log("==============================\n");
-
-			return toolsResult;
-		} catch (error) {
-			console.error("Failed to fetch tools list:", error);
-			throw error;
-		}
+		return toolsResult;
 	}
 
-	// 接続を切断
+	async listResources(): Promise<any> {
+		this.ensureConnected();
+
+		const resourcesResult = await this.request("resources/list", {});
+
+		console.log("\n======== MCP Resources List ========");
+		console.log(JSON.stringify(resourcesResult, null, 2));
+		console.log("==============================\n");
+
+		return resourcesResult;
+	}
+
+	async callTool(name: string, args: Record<string, any>): Promise<any> {
+		this.ensureConnected();
+
+		const result = await this.request(`tools/call`, {
+			name,
+			arguments: args,
+		});
+		console.log(`\n======== Tool Call Result for ${name} ========`);
+		console.log(JSON.stringify(result, null, 2));
+		console.log("==============================\n");
+		return result;
+	}
+
 	public disconnect(): void {
 		console.log("\nDisconnecting from MCP server...");
 		this.isConnected = false;
@@ -244,7 +267,7 @@ class Client {
 // MCPサーバーのプロセスを作成する関数
 function newServer(directories: string[]): ChildProcessWithoutNullStreams {
   // MCPサーバーのスクリプトパスを探す
-  const findServerPath = (): string => {
+  const findMcpFileSystemServerPath = (): string => {
     // ローカルのnode_modules内のパッケージを探す
     const packagePath = path.resolve(process.cwd(), 'node_modules', '@modelcontextprotocol', 'server-filesystem');
 
@@ -292,7 +315,7 @@ function newServer(directories: string[]): ChildProcessWithoutNullStreams {
     throw new Error('Could not find @modelcontextprotocol/server-filesystem package');
   };
 
-  const serverScriptPath = findServerPath();
+  const serverScriptPath = findMcpFileSystemServerPath();
   console.log(`Found server script at: ${serverScriptPath}`);
 
   // ディレクトリが指定されていない場合はカレントディレクトリを使用
@@ -324,11 +347,12 @@ async function main() {
   const client = new Client();
 
   try {
-    // サーバーに接続
-    await client.connect(serverProcess);
+		await client.connect(serverProcess);
+		await client.listTools();
 
-    // ツール一覧を取得
-    await client.listTools();
+		if (directories.length > 0) {
+			await client.callTool("list_directory", { path: directories[0] });
+		}
 
     // Ctrl+Cで終了するまで待機
     console.log("\nPress Ctrl+C to exit...");
