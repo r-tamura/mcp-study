@@ -1,0 +1,21 @@
+{
+  "name": "aws-mcp",
+  "version": "1.0.0",
+  "description": "AWS Model Context Protocol Server",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc -w"
+  },
+  "keywords": ["aws", "mcp", "ec2"],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.7.0",
+  "dependencies": {
+    "@aws-sdk/client-ec2": "^3.540.0",
+    "@aws-sdk/credential-providers": "^3.540.0",
+    "@modelcontextprotocol/sdk": "^1.8.0",
+    "zod": "^3.24.2"
+  }
+}

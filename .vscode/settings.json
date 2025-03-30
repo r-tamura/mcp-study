@@ -1,8 +1,0 @@
-{
-  "[javascript][json][jsonc][javascriptreact][typescript][typescriptreact]": {
-    "editor.defaultFormatter": "biomejs.biome",
-    "editor.codeActionsOnSave": {
-      "source.organizeImports": "explicit"
-    }
-  }
-}

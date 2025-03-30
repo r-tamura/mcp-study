@@ -10,7 +10,9 @@
   },
   "scripts": {
     "build": "pnpm -r build",
-    "start:filesystem-client": "pnpm --filter filesystem-client start"
+    "start:filesystem-client": "pnpm --filter filesystem-client start",
+    "start:aws-mcp": "pnpm --filter aws-mcp start",
+    "dev:aws-mcp": "pnpm --filter aws-mcp dev"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
